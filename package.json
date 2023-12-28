@@ -1,6 +1,6 @@
 {
     "name": "@ky-y./newrelic-logs",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "main": "dist/index.js",
     "repository": "https://github.com/ky-y/newrelic-logs",
     "author": "kyoya0819",
