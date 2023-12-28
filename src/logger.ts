@@ -14,7 +14,7 @@ export class logger {
     };
 
     private readonly url: string;
-    private readonly app: string,
+    private readonly app: string;
     private readonly headers: Record<string, string | undefined>;
 
     constructor(v: LoggerType) {
