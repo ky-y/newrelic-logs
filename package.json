@@ -6,11 +6,13 @@
     "author": "kyoya0819",
     "license": "MIT",
     "scripts": {
-        "build": "tsc --outDir dist",
+        "build": "ncc build index.ts -o dist",
         "prepare": "npm run build"
     },
     "devDependencies": {
         "@types/node": "^20.10.5",
+        "@vercel/ncc": "^0.38.1",
+        "ts-node": "^10.9.2",
         "typescript": "^5.3.3"
     },
     "dependencies": {

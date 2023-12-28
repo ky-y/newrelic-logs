@@ -1,83 +1,78 @@
-import ky, { KyInstance } from "ky";
+import ky from "ky";
 
 import type { ConfigType, LoggerType } from "./types";
 
 export class logger {
 
-    private defaultConfig: {
+    private readonly defaultConfig: {
         [P in keyof ConfigType]-?: ConfigType[P]; // Remove Optional Property
     } = {
-        endpoint: "EU",
+        endpoint: "US",
         headers: {
             "Content-Type": "application/json",
         }
     };
 
-    private kyInstance: KyInstance;
+    private readonly url: string;
+    private readonly app: string,
+    private readonly headers: Record<string, string | undefined>;
 
     constructor(v: LoggerType) {
-        if (!v.apiKey && !v.licenseKey)
-            throw new Error("Either appKey or licenseKey is required.");
 
         const config = { ...this.defaultConfig, ...v.config };
+        this.headers = config.headers;
 
         const endpoints: { [key in typeof this.defaultConfig["endpoint"]]: string } = {
             "EU": "https://log-api.eu.newrelic.com/log/v1",
             "US": "https://log-api.newrelic.com/log/v1",
         };
 
-        const token = v.licenseKey ? { "License-Key": v.licenseKey } : { "Api-Key" : v.apiKey };
+        const url = new URL(endpoints[config.endpoint]);
+        url.searchParams.set("Api-Key", v.licenseKey);
+        this.url = url.toString();
 
-        this.kyInstance = ky.create({
-            prefixUrl: endpoints[config.endpoint],
-            headers: {
-                ...token,
-                ...config.headers
-            }
-        })
+        this.app = v.app;
     }
 
-    log(...messages: never[]) {
+    private async fetchApi(level: "log"|"warn"|"error", message: any)
+    {
+
+        return ky.post(this.url, {
+            headers: this.headers,
+            json: {
+                level,
+                app: this.app,
+                message: JSON.stringify(message)
+            }
+        });
+    }
+
+    log(...messages: any[]) {
 
         (async () => {
 
             for(const message of messages) {
-                await this.kyInstance("", {
-                    json: {
-                        level: "log",
-                        message: JSON.stringify(message)
-                    }
-                })
-            }
-        })();
-    }
-
-    warn(...messages: never[]) {
-
-        (async () => {
-
-            for(const message of messages) {
-                await this.kyInstance("", {
-                    json: {
-                        level: "warn",
-                        message: JSON.stringify(message)
-                    }
-                })
+                await this.fetchApi("log", message);
             }
         })();
     }
 
-    error(...messages: never[]) {
+    warn(...messages: any[]) {
 
         (async () => {
 
             for(const message of messages) {
-                await this.kyInstance("", {
-                    json: {
-                        level: "error",
-                        message: JSON.stringify(message)
-                    }
-                })
+                await this.fetchApi("warn", message);
+            }
+        })();
+    }
+
+    error(...messages: any[]) {
+
+        (async () => {
+
+            for(const message of messages) {
+                await this.fetchApi("error", message);
             }
         })();
     }

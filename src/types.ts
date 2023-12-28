@@ -4,11 +4,7 @@ export type ConfigType = {
 };
 
 export type LoggerType = {
-    apiKey: string,
-    licenseKey?: string,
-    config?: ConfigType
-} | {
-    apiKey?: string,
     licenseKey: string,
+    app: string,
     config?: ConfigType
 };
