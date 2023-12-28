@@ -1,4 +1,4 @@
-./src
+/src
 *config.*
-.idea
+/.idea
 .git*
